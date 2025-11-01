@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.firefly</groupId>
+        <artifactId>lib-parent-pom</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>common-platform-callbacks-mgmt</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    
+    <name>Firefly Callback Management Platform</name>
+    <description>Outbound webhook management platform for sending events from Firefly to third-party systems</description>
+    
+    <modules>
+        <module>common-platform-callbacks-mgmt-interfaces</module>
+        <module>common-platform-callbacks-mgmt-models</module>
+        <module>common-platform-callbacks-mgmt-core</module>
+        <module>common-platform-callbacks-mgmt-web</module>
+        <module>common-platform-callbacks-mgmt-sdk</module>
+    </modules>
+
+    <properties>
+        <common-platform-callbacks-mgmt.version>
+            1.0.0-SNAPSHOT
+        </common-platform-callbacks-mgmt.version>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- Internal modules -->
+            <dependency>
+                <groupId>com.firefly</groupId>
+                <artifactId>common-platform-callbacks-mgmt-interfaces</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.firefly</groupId>
+                <artifactId>common-platform-callbacks-mgmt-models</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.firefly</groupId>
+                <artifactId>common-platform-callbacks-mgmt-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.firefly</groupId>
+                <artifactId>common-platform-callbacks-mgmt-web</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.firefly</groupId>
+                <artifactId>common-platform-callbacks-mgmt-sdk</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+</project>
