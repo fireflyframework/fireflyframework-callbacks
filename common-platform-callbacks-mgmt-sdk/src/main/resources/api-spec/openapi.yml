@@ -717,18 +717,28 @@ components:
           type: string
           format: uuid
         name:
+          maxLength: 255
+          minLength: 1
           type: string
         description:
+          maxLength: 2000
+          minLength: 0
           type: string
         messagingSystemType:
+          maxLength: 50
+          minLength: 1
           type: string
         connectionConfig:
           type: object
           additionalProperties:
             type: string
         topicOrQueue:
+          maxLength: 500
+          minLength: 1
           type: string
         consumerGroupId:
+          maxLength: 255
+          minLength: 0
           type: string
         active:
           type: boolean
@@ -741,12 +751,18 @@ components:
           items:
             type: string
         maxConcurrentConsumers:
+          maximum: 100
+          minimum: 1
           type: integer
           format: int32
         pollingIntervalMs:
+          maximum: 60000
+          minimum: 100
           type: integer
           format: int32
         tenantId:
+          maxLength: 100
+          minLength: 0
           type: string
         metadata:
           type: object
@@ -756,9 +772,11 @@ components:
           type: string
           format: date-time
         totalMessagesReceived:
+          minimum: 0
           type: integer
           format: int64
         totalMessagesFailed:
+          minimum: 0
           type: integer
           format: int64
         createdAt:
@@ -768,8 +786,12 @@ components:
           type: string
           format: date-time
         createdBy:
+          maxLength: 255
+          minLength: 0
           type: string
         updatedBy:
+          maxLength: 255
+          minLength: 0
           type: string
     CallbackConfigurationDTO:
       required:
@@ -784,10 +806,17 @@ components:
           type: string
           format: uuid
         name:
+          maxLength: 255
+          minLength: 1
           type: string
         description:
+          maxLength: 2000
+          minLength: 0
           type: string
         url:
+          maxLength: 2048
+          minLength: 0
+          pattern: ^https?://.*
           type: string
         httpMethod:
           type: string
@@ -803,6 +832,8 @@ components:
             - DISABLED
             - FAILED
         subscribedEventTypes:
+          maxItems: 2147483647
+          minItems: 1
           type: array
           items:
             type: string
@@ -811,37 +842,58 @@ components:
           additionalProperties:
             type: string
         secret:
+          maxLength: 500
+          minLength: 0
           type: string
         signatureEnabled:
           type: boolean
         signatureHeader:
+          maxLength: 100
+          minLength: 0
           type: string
         maxRetries:
+          maximum: 10
+          minimum: 0
           type: integer
           format: int32
         retryDelayMs:
+          maximum: 300000
+          minimum: 100
           type: integer
           format: int32
         retryBackoffMultiplier:
+          maximum: 10
+          exclusiveMaximum: false
+          minimum: 1
+          exclusiveMinimum: false
           type: number
           format: double
         timeoutMs:
+          maximum: 300000
+          minimum: 1000
           type: integer
           format: int32
         active:
           type: boolean
         tenantId:
+          maxLength: 100
+          minLength: 0
           type: string
         filterExpression:
+          maxLength: 1000
+          minLength: 0
           type: string
         metadata:
           type: object
           additionalProperties:
             type: object
         failureThreshold:
+          maximum: 100
+          minimum: 1
           type: integer
           format: int32
         failureCount:
+          minimum: 0
           type: integer
           format: int32
         lastSuccessAt:
@@ -857,8 +909,12 @@ components:
           type: string
           format: date-time
         createdBy:
+          maxLength: 255
+          minLength: 0
           type: string
         updatedBy:
+          maxLength: 255
+          minLength: 0
           type: string
     AuthorizedDomainDTO:
       required:
@@ -869,16 +925,26 @@ components:
           type: string
           format: uuid
         domain:
+          maxLength: 255
+          minLength: 1
           type: string
         organization:
+          maxLength: 255
+          minLength: 0
           type: string
         contactEmail:
+          maxLength: 255
+          minLength: 0
           type: string
         verified:
           type: boolean
         verificationMethod:
+          maxLength: 50
+          minLength: 0
           type: string
         verificationToken:
+          maxLength: 500
+          minLength: 0
           type: string
         verifiedAt:
           type: string
@@ -890,6 +956,8 @@ components:
           items:
             type: string
         maxCallbacksPerMinute:
+          maximum: 10000
+          minimum: 1
           type: integer
           format: int32
         ipWhitelist:
@@ -899,8 +967,12 @@ components:
         requireHttps:
           type: boolean
         tenantId:
+          maxLength: 100
+          minLength: 0
           type: string
         notes:
+          maxLength: 2000
+          minLength: 0
           type: string
         metadata:
           type: object
@@ -913,9 +985,11 @@ components:
           type: string
           format: date-time
         totalCallbacks:
+          minimum: 0
           type: integer
           format: int64
         totalFailed:
+          minimum: 0
           type: integer
           format: int64
         createdAt:
@@ -925,6 +999,8 @@ components:
           type: string
           format: date-time
         authorizedBy:
+          maxLength: 255
+          minLength: 0
           type: string
     FilterRequestEventSubscriptionDTO:
       type: object
@@ -1039,6 +1115,8 @@ components:
         search:
           type: string
     CallbackExecutionDTO:
+      required:
+        - status
       type: object
       properties:
         id:
@@ -1048,6 +1126,8 @@ components:
           type: string
           format: uuid
         eventType:
+          maxLength: 255
+          minLength: 0
           type: string
         sourceEventId:
           type: string
@@ -1066,9 +1146,13 @@ components:
           additionalProperties:
             type: object
         responseStatusCode:
+          maximum: 599
+          minimum: 100
           type: integer
           format: int32
         responseBody:
+          maxLength: 10000
+          minLength: 0
           type: string
         requestHeaders:
           type: object
@@ -1079,16 +1163,24 @@ components:
           additionalProperties:
             type: string
         attemptNumber:
+          minimum: 0
           type: integer
           format: int32
         maxAttempts:
+          maximum: 10
+          minimum: 0
           type: integer
           format: int32
         errorMessage:
+          maxLength: 2000
+          minLength: 0
           type: string
         errorStackTrace:
+          maxLength: 10000
+          minLength: 0
           type: string
         requestDurationMs:
+          minimum: 0
           type: integer
           format: int64
         nextRetryAt:
