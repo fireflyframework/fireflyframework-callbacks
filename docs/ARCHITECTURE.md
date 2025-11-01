@@ -53,7 +53,7 @@ The Firefly Callback Management Platform is a **reactive, event-driven microserv
 │                         │  Apache Kafka   │                             │
 │                         │  Event Streams  │                             │
 │                         └────────┬────────┘                             │
-└──────────────────────────────────┼──────────────────────────────────────┘ 
+└──────────────────────────────────┼──────────────────────────────────────┘
                                    ▼
 ┌─────────────────────────────────────────────────────────────────────────┐
 │              Callback Management Platform (This Service)                │
@@ -103,8 +103,8 @@ The Firefly Callback Management Platform is a **reactive, event-driven microserv
 │  ┌─────────┼──────────────────────────────────────────────────────┐     │
 │  │         │         Data Layer (R2DBC)                           │     │
 │  │         ▼                                                      │     │
-│  │  ┌──────────────────────────────────────────────────┐          │     │ 
-│  │  │              PostgreSQL Database                 │          │     │ 
+│  │  ┌──────────────────────────────────────────────────┐          │     │
+│  │  │              PostgreSQL Database                 │          │     │
 │  │  │  ┌────────────┐  ┌────────────┐  ┌────────────┐  │          │     │
 │  │  │  │Subscriptions│ │  Domains   │  │  Configs   │  │          │     │
 │  │  │  └────────────┘  └────────────┘  └────────────┘  │          │     │
@@ -273,7 +273,7 @@ public Mono<Integer> routeEvent(
         UUID eventId,
         JsonNode payload,
         Map<String, Object> headers) {
-    
+
     // Find all active callbacks subscribed to this event type
     return configurationService.findActiveByEventType(eventType)
         .flatMap(config -> {
@@ -309,19 +309,19 @@ public Mono<Integer> routeEvent(
    ├─ Extract domain from URL
    ├─ Query authorized_domains table
    └─ Verify active and verified status
-   
+
 2. Build HTTP Request
    ├─ Serialize payload to JSON
    ├─ Add standard headers (X-Event-Type, X-Event-Id, X-Timestamp)
    ├─ Add custom headers from configuration
    └─ Generate HMAC signature (if enabled)
-   
+
 3. Execute with Resilience
    ├─ Apply circuit breaker (per-configuration)
    ├─ Execute HTTP request via WebClient
    ├─ Apply timeout
    └─ Retry on failure (exponential backoff)
-   
+
 4. Record Execution
    ├─ Save to callback_executions table
    ├─ Update configuration statistics
@@ -360,10 +360,10 @@ RetryBackoffSpec retrySpec = Retry.backoff(
 ```java
 public Mono<Boolean> isAuthorized(String url) {
     String domain = extractDomain(url);
-    
+
     return domainRepository.findByDomain(domain)
-        .map(authorizedDomain -> 
-            authorizedDomain.getActive() && 
+        .map(authorizedDomain ->
+            authorizedDomain.getActive() &&
             authorizedDomain.getVerified()
         )
         .defaultIfEmpty(false);
@@ -402,7 +402,7 @@ public class FilterRequest<T> {
 // In service layer
 public Mono<PaginationResponse<CallbackConfigurationDTO>> filterConfigurations(
         FilterRequest<CallbackConfigurationDTO> request) {
-    
+
     return FilterUtils
         .createFilter(CallbackConfiguration.class, mapper::toDto)
         .withRepository(configurationRepository)
@@ -491,12 +491,31 @@ CREATE TABLE event_subscriptions (
     topic_or_queue VARCHAR(500) NOT NULL,
     consumer_group_id VARCHAR(255),
     active BOOLEAN NOT NULL DEFAULT TRUE,
+    consumer_properties TEXT,                    -- JSON config
     event_type_patterns TEXT[],                  -- ['customer.*', 'order.completed']
+    max_concurrent_consumers INTEGER DEFAULT 1,
+    polling_interval_ms INTEGER DEFAULT 1000,
     tenant_id VARCHAR(100),
+    metadata TEXT,                               -- JSON metadata
+    last_message_at TIMESTAMP,
+    total_messages_received BIGINT DEFAULT 0,
+    total_messages_failed BIGINT DEFAULT 0,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_by VARCHAR(255),
+    updated_by VARCHAR(255)
 );
 ```
+
+**Field Validations**:
+- `name`: Required, 1-255 characters
+- `messaging_system_type`: Required, 1-50 characters
+- `connection_config`: Required, must contain at least one entry
+- `topic_or_queue`: Required, 1-500 characters
+- `consumer_group_id`: Optional, max 255 characters
+- `max_concurrent_consumers`: 1-100, default 1
+- `polling_interval_ms`: 100-60000ms, default 1000ms
+- `tenant_id`: Optional, max 100 characters
 
 **Indexes**:
 - `idx_event_subs_active` on `active`
@@ -511,20 +530,38 @@ CREATE TABLE authorized_domains (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     domain VARCHAR(255) NOT NULL UNIQUE,
     organization VARCHAR(255),
+    contact_email VARCHAR(255),
     verified BOOLEAN NOT NULL DEFAULT FALSE,
-    verification_method VARCHAR(100),
+    verification_method VARCHAR(50),
+    verification_token VARCHAR(500),
+    verified_at TIMESTAMP,
     active BOOLEAN NOT NULL DEFAULT TRUE,
-    require_https BOOLEAN DEFAULT TRUE,
     allowed_paths TEXT[],                        -- ['/webhooks/*', '/api/callbacks/*']
-    max_callbacks_per_minute INTEGER,
+    max_callbacks_per_minute INTEGER DEFAULT 100,
+    ip_whitelist TEXT[],
+    require_https BOOLEAN DEFAULT TRUE,
     tenant_id VARCHAR(100),
+    notes TEXT,
+    metadata TEXT,                               -- JSON metadata
+    expires_at TIMESTAMP,
     last_callback_at TIMESTAMP,
     total_callbacks BIGINT DEFAULT 0,
     total_failed BIGINT DEFAULT 0,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    authorized_by VARCHAR(255)
 );
 ```
+
+**Field Validations**:
+- `domain`: Required, 1-255 characters
+- `organization`: Optional, max 255 characters
+- `contact_email`: Optional, must be valid email, max 255 characters
+- `verification_method`: Optional, max 50 characters
+- `verification_token`: Optional, max 500 characters
+- `max_callbacks_per_minute`: 1-10000, default 100
+- `tenant_id`: Optional, max 100 characters
+- `notes`: Optional, max 2000 characters
 
 **Indexes**:
 - `idx_auth_domains_domain` on `domain`
@@ -538,6 +575,7 @@ HTTP callback configurations for webhook dispatch.
 CREATE TABLE callback_configurations (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name VARCHAR(255) NOT NULL,
+    description TEXT,
     url VARCHAR(2048) NOT NULL,
     http_method VARCHAR(10) NOT NULL DEFAULT 'POST',
     status VARCHAR(50) NOT NULL DEFAULT 'ACTIVE',
@@ -545,7 +583,7 @@ CREATE TABLE callback_configurations (
     custom_headers TEXT,                         -- JSON
     secret VARCHAR(500),
     signature_enabled BOOLEAN DEFAULT FALSE,
-    signature_header VARCHAR(100) DEFAULT 'X-Signature',
+    signature_header VARCHAR(100) DEFAULT 'X-Firefly-Signature',
     max_retries INTEGER DEFAULT 3,
     retry_delay_ms INTEGER DEFAULT 1000,
     retry_backoff_multiplier DOUBLE PRECISION DEFAULT 2.0,
@@ -553,14 +591,35 @@ CREATE TABLE callback_configurations (
     active BOOLEAN NOT NULL DEFAULT TRUE,
     tenant_id VARCHAR(100),
     filter_expression TEXT,                      -- JSONPath expression
+    metadata TEXT,                               -- JSON metadata
     failure_threshold INTEGER DEFAULT 10,
     failure_count INTEGER DEFAULT 0,
     last_success_at TIMESTAMP,
     last_failure_at TIMESTAMP,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_by VARCHAR(255),
+    updated_by VARCHAR(255)
 );
 ```
+
+**Field Validations**:
+- `name`: Required, 1-255 characters
+- `description`: Optional, max 2000 characters
+- `url`: Required, max 2048 characters, must start with http:// or https://
+- `http_method`: Required, one of POST, PUT, PATCH
+- `status`: Required, one of ACTIVE, PAUSED, DISABLED, FAILED
+- `subscribed_event_types`: Required, must contain at least one event type
+- `secret`: Optional, max 500 characters
+- `signature_header`: Optional, max 100 characters
+- `max_retries`: 0-10, default 3
+- `retry_delay_ms`: 100-300000ms, default 1000ms
+- `retry_backoff_multiplier`: 1.0-10.0, default 2.0
+- `timeout_ms`: 1000-300000ms, default 30000ms
+- `tenant_id`: Optional, max 100 characters
+- `filter_expression`: Optional, max 1000 characters
+- `failure_threshold`: 1-100, default 10
+- `failure_count`: Non-negative, default 0
 
 **Indexes**:
 - `idx_callback_configs_status` on `status`
@@ -575,27 +634,155 @@ Audit trail of all callback execution attempts.
 CREATE TABLE callback_executions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     configuration_id UUID NOT NULL REFERENCES callback_configurations(id) ON DELETE CASCADE,
-    event_type VARCHAR(255) NOT NULL,
+    event_type VARCHAR(255),
     source_event_id UUID,
-    status VARCHAR(50) NOT NULL,                 -- SUCCESS, FAILED_RETRYING, FAILED_PERMANENT
-    request_payload TEXT,
+    status VARCHAR(50) NOT NULL,                 -- PENDING, IN_PROGRESS, SUCCESS, FAILED_RETRYING, FAILED_PERMANENT, SKIPPED
+    request_payload TEXT,                        -- JSON
     response_status_code INTEGER,
     response_body TEXT,
     request_headers TEXT,                        -- JSON
-    attempt_number INTEGER NOT NULL DEFAULT 1,
+    response_headers TEXT,                       -- JSON
+    attempt_number INTEGER NOT NULL DEFAULT 0,
     max_attempts INTEGER,
     error_message TEXT,
+    error_stack_trace TEXT,
     request_duration_ms BIGINT,
+    next_retry_at TIMESTAMP,
     executed_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    completed_at TIMESTAMP
+    completed_at TIMESTAMP,
+    metadata TEXT                                -- JSON metadata
 );
 ```
+
+**Field Validations**:
+- `event_type`: Optional, max 255 characters
+- `status`: Required, one of PENDING, IN_PROGRESS, SUCCESS, FAILED_RETRYING, FAILED_PERMANENT, SKIPPED
+- `response_status_code`: 100-599 (valid HTTP status codes)
+- `response_body`: Optional, max 10000 characters
+- `attempt_number`: Non-negative, default 0
+- `max_attempts`: 0-10
+- `error_message`: Optional, max 2000 characters
+- `error_stack_trace`: Optional, max 10000 characters
+- `request_duration_ms`: Non-negative
 
 **Indexes**:
 - `idx_callback_exec_config` on `configuration_id`
 - `idx_callback_exec_status` on `status`
 - `idx_callback_exec_event_type` on `event_type`
 - `idx_callback_exec_executed_at` on `executed_at DESC`
+
+
+### Data Transfer Objects (DTOs)
+
+All DTOs include comprehensive Jakarta validation annotations to ensure data integrity at the API boundary.
+
+#### EventSubscriptionDTO
+
+Represents a dynamic subscription to a messaging system.
+
+**Key Fields**:
+- `id` (UUID): Unique identifier (read-only)
+- `name` (String, required): Subscription name (1-255 chars)
+- `description` (String): Description (max 2000 chars)
+- `messagingSystemType` (String, required): System type like KAFKA, RABBITMQ (1-50 chars)
+- `connectionConfig` (Map<String,String>, required): Connection configuration (min 1 entry)
+- `topicOrQueue` (String, required): Topic/queue name (1-500 chars)
+- `consumerGroupId` (String): Consumer group ID (max 255 chars)
+- `active` (Boolean): Whether subscription is active (default: true)
+- `consumerProperties` (Map<String,String>): Additional consumer properties
+- `eventTypePatterns` (String[]): Event type patterns to match
+- `maxConcurrentConsumers` (Integer): Max concurrent consumers (1-100, default: 1)
+- `pollingIntervalMs` (Integer): Polling interval (100-60000ms, default: 1000ms)
+- `tenantId` (String): Tenant ID (max 100 chars)
+- `metadata` (Map<String,Object>): Additional metadata
+- `lastMessageAt` (Instant): Last message received time (read-only)
+- `totalMessagesReceived` (Long): Total messages received (read-only, min: 0)
+- `totalMessagesFailed` (Long): Total failed messages (read-only, min: 0)
+- `createdAt`, `updatedAt` (Instant): Timestamps (read-only)
+- `createdBy`, `updatedBy` (String): User tracking (max 255 chars, read-only)
+
+#### CallbackConfigurationDTO
+
+Represents an HTTP callback configuration.
+
+**Key Fields**:
+- `id` (UUID): Unique identifier (read-only)
+- `name` (String, required): Configuration name (1-255 chars)
+- `description` (String): Description (max 2000 chars)
+- `url` (String, required): Target URL (max 2048 chars, must match `^https?://.*`)
+- `httpMethod` (HttpMethod, required): HTTP method (POST, PUT, PATCH)
+- `status` (CallbackStatus, required): Status (ACTIVE, PAUSED, DISABLED, FAILED)
+- `subscribedEventTypes` (String[], required): Event types to subscribe to (min 1 entry)
+- `customHeaders` (Map<String,String>): Custom HTTP headers
+- `secret` (String): HMAC secret (max 500 chars)
+- `signatureEnabled` (Boolean): Enable HMAC signature (default: false)
+- `signatureHeader` (String): Signature header name (max 100 chars)
+- `maxRetries` (Integer): Max retry attempts (0-10, default: 3)
+- `retryDelayMs` (Integer): Initial retry delay (100-300000ms, default: 1000ms)
+- `retryBackoffMultiplier` (Double): Backoff multiplier (1.0-10.0, default: 2.0)
+- `timeoutMs` (Integer): Request timeout (1000-300000ms, default: 30000ms)
+- `active` (Boolean): Whether callback is active (default: true)
+- `tenantId` (String): Tenant ID (max 100 chars)
+- `filterExpression` (String): JSONPath filter expression (max 1000 chars)
+- `metadata` (Map<String,Object>): Additional metadata
+- `failureThreshold` (Integer): Failures before auto-disable (1-100, default: 10)
+- `failureCount` (Integer): Current failure count (read-only, min: 0)
+- `lastSuccessAt`, `lastFailureAt` (Instant): Last execution times (read-only)
+- `createdAt`, `updatedAt` (Instant): Timestamps (read-only)
+- `createdBy`, `updatedBy` (String): User tracking (max 255 chars, read-only)
+
+#### AuthorizedDomainDTO
+
+Represents an authorized domain for callback URLs.
+
+**Key Fields**:
+- `id` (UUID): Unique identifier (read-only)
+- `domain` (String, required): Domain name (1-255 chars)
+- `organization` (String): Organization name (max 255 chars)
+- `contactEmail` (String): Contact email (valid email, max 255 chars)
+- `verified` (Boolean): Domain verification status (default: false)
+- `verificationMethod` (String): Verification method (max 50 chars)
+- `verificationToken` (String): Verification token (max 500 chars)
+- `verifiedAt` (Instant): Verification timestamp (read-only)
+- `active` (Boolean): Whether domain is active (default: true)
+- `allowedPaths` (String[]): Allowed URL paths
+- `maxCallbacksPerMinute` (Integer): Rate limit (1-10000, default: 100)
+- `ipWhitelist` (String[]): IP whitelist
+- `requireHttps` (Boolean): Require HTTPS (default: true)
+- `tenantId` (String): Tenant ID (max 100 chars)
+- `notes` (String): Additional notes (max 2000 chars)
+- `metadata` (Map<String,Object>): Additional metadata
+- `expiresAt` (Instant): Expiration timestamp
+- `lastCallbackAt` (Instant): Last callback time (read-only)
+- `totalCallbacks` (Long): Total callbacks sent (read-only, min: 0)
+- `totalFailed` (Long): Total failed callbacks (read-only, min: 0)
+- `createdAt`, `updatedAt` (Instant): Timestamps (read-only)
+- `authorizedBy` (String): User who authorized (max 255 chars, read-only)
+
+#### CallbackExecutionDTO
+
+Represents a callback execution attempt.
+
+**Key Fields**:
+- `id` (UUID): Unique identifier (read-only)
+- `configurationId` (UUID): Configuration ID
+- `eventType` (String): Event type (max 255 chars)
+- `sourceEventId` (UUID): Source event ID
+- `status` (CallbackExecutionStatus, required): Execution status (PENDING, IN_PROGRESS, SUCCESS, FAILED_RETRYING, FAILED_PERMANENT, SKIPPED)
+- `requestPayload` (Map<String,Object>): Request payload
+- `responseStatusCode` (Integer): HTTP status code (100-599)
+- `responseBody` (String): Response body (max 10000 chars)
+- `requestHeaders` (Map<String,String>): Request headers
+- `responseHeaders` (Map<String,String>): Response headers
+- `attemptNumber` (Integer): Attempt number (min: 0, default: 0)
+- `maxAttempts` (Integer): Max attempts (0-10)
+- `errorMessage` (String): Error message (max 2000 chars)
+- `errorStackTrace` (String): Error stack trace (max 10000 chars)
+- `requestDurationMs` (Long): Request duration (min: 0)
+- `nextRetryAt` (Instant): Next retry time
+- `executedAt` (Instant): Execution start time (read-only)
+- `completedAt` (Instant): Execution completion time (read-only)
+- `metadata` (Map<String,Object>): Additional metadata
 
 ## Event Flow
 
@@ -732,20 +919,20 @@ sequenceDiagram
     DL->>CR: routeEvent(eventType, eventId, payload)
     CR->>DB: Find active configs by event type
     DB-->>CR: Return matching configs
-    
+
     loop For each configuration
         CR->>CD: dispatch(config, eventType, eventId, payload)
         CD->>DA: isAuthorized(url)
         DA->>DB: Query authorized_domains
         DB-->>DA: Return domain
         DA-->>CD: Authorized = true
-        
+
         CD->>CD: Build HTTP request + HMAC signature
         CD->>CB: Check circuit breaker state
         CB-->>CD: CLOSED (OK to proceed)
-        
+
         CD->>EXT: HTTP POST /webhook
-        
+
         alt Success
             EXT-->>CD: 200 OK
             CD->>DB: Save execution (SUCCESS)
@@ -762,7 +949,7 @@ sequenceDiagram
             CD->>CB: Record failure
         end
     end
-    
+
     CR-->>DL: Return callback count
 ```
 
@@ -784,9 +971,9 @@ All repositories extend this base:
 
 ```java
 @Repository
-public interface CallbackConfigurationRepository 
+public interface CallbackConfigurationRepository
         extends BaseRepository<CallbackConfiguration, UUID> {
-    
+
     @Query("SELECT * FROM callback_configurations " +
            "WHERE status = 'ACTIVE' " +
            "AND :eventType = ANY(subscribed_event_types)")
@@ -1140,7 +1327,7 @@ Flux<Event> events = kafkaConsumer.consume()
 spring:
   application:
     name: common-platform-callbacks-mgmt
-  
+
   # Database Configuration
   r2dbc:
     url: r2dbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:callbacks_db}
@@ -1150,7 +1337,7 @@ spring:
       initial-size: 10
       max-size: 50
       max-idle-time: 30m
-  
+
   data:
     r2dbc:
       repositories:
@@ -1188,13 +1375,13 @@ firefly:
     listener:
       topics: ${CALLBACK_LISTENER_TOPICS:*}
       group-id: ${CALLBACK_LISTENER_GROUP_ID:callbacks-mgmt-consumer}
-    
+
     # HTTP Dispatcher
     dispatcher:
       thread-pool-size: ${CALLBACK_DISPATCHER_THREADS:20}
       default-timeout-ms: ${CALLBACK_DEFAULT_TIMEOUT:30000}
       follow-redirects: ${CALLBACK_FOLLOW_REDIRECTS:false}
-    
+
     # Circuit Breaker
     circuit-breaker:
       failure-rate-threshold: ${CALLBACK_CB_FAILURE_RATE:50}
@@ -1203,14 +1390,14 @@ firefly:
       sliding-window-size: ${CALLBACK_CB_WINDOW_SIZE:100}
       minimum-number-of-calls: ${CALLBACK_CB_MIN_CALLS:10}
       wait-duration-in-open-state-ms: ${CALLBACK_CB_WAIT_DURATION:60000}
-    
+
     # Retry
     retry:
       max-attempts: ${CALLBACK_RETRY_MAX_ATTEMPTS:3}
       initial-delay-ms: ${CALLBACK_RETRY_INITIAL_DELAY:1000}
       max-delay-ms: ${CALLBACK_RETRY_MAX_DELAY:60000}
       multiplier: ${CALLBACK_RETRY_MULTIPLIER:2.0}
-    
+
     # Security
     signature:
       algorithm: ${CALLBACK_SIGNATURE_ALGORITHM:HmacSHA256}
