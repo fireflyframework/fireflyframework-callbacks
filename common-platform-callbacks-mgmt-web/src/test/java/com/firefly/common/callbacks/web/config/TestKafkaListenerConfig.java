@@ -37,9 +37,7 @@ import org.springframework.kafka.listener.KafkaMessageListenerContainer;
 import org.springframework.kafka.listener.MessageListener;
 import reactor.core.publisher.Mono;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiFunction;
 
@@ -67,14 +65,18 @@ public class TestKafkaListenerConfig {
     /**
      * Test implementation of DynamicEventListenerRegistry that actually works.
      */
-    @RequiredArgsConstructor
     @Slf4j
     public static class TestDynamicEventListenerRegistry implements DynamicEventListenerRegistry {
-        
+
         private final CallbackRouter callbackRouter;
         private final ObjectMapper objectMapper;
         private final Map<String, KafkaMessageListenerContainer<String, String>> containers = new ConcurrentHashMap<>();
         private String bootstrapServers = "localhost:9092"; // Default, will be updated
+
+        public TestDynamicEventListenerRegistry(CallbackRouter callbackRouter, ObjectMapper objectMapper) {
+            this.callbackRouter = callbackRouter;
+            this.objectMapper = objectMapper;
+        }
 
         @Override
         public void registerListener(
@@ -111,11 +113,15 @@ public class TestKafkaListenerConfig {
                         
                         // Extract headers
                         Map<String, Object> headers = new HashMap<>();
-                        record.headers().forEach(header -> 
+                        record.headers().forEach(header ->
                                 headers.put(header.key(), new String(header.value())));
-                        
-                        // Call the handler
+
+                        // Generate a transaction ID for this message processing
+                        String transactionId = java.util.UUID.randomUUID().toString();
+
+                        // Call the handler with transaction ID in context
                         handler.apply(eventJson, headers)
+                                .contextWrite(ctx -> ctx.put("X-Transaction-Id", transactionId))
                                 .doOnSuccess(v -> log.info("Event processed successfully"))
                                 .doOnError(e -> log.error("Error processing event", e))
                                 .subscribe();
@@ -141,6 +147,16 @@ public class TestKafkaListenerConfig {
         }
 
         @Override
+        public void registerListener(
+                String listenerId,
+                String topic,
+                PublisherType publisherType,
+                BiFunction<Object, Map<String, Object>, Mono<Void>> handler) {
+            // Delegate to the full method with empty event type patterns
+            registerListener(listenerId, topic, new String[0], publisherType, handler);
+        }
+
+        @Override
         public void unregisterListener(String listenerId) {
             log.info("Unregistering test Kafka listener: id={}", listenerId);
             KafkaMessageListenerContainer<String, String> container = containers.remove(listenerId);
@@ -149,7 +165,17 @@ public class TestKafkaListenerConfig {
                 log.info("Test Kafka listener stopped: id={}", listenerId);
             }
         }
-        
+
+        @Override
+        public String[] getRegisteredListenerIds() {
+            return containers.keySet().toArray(new String[0]);
+        }
+
+        @Override
+        public boolean isListenerRegistered(String listenerId) {
+            return containers.containsKey(listenerId);
+        }
+
         public void setBootstrapServers(String bootstrapServers) {
             this.bootstrapServers = bootstrapServers;
         }
