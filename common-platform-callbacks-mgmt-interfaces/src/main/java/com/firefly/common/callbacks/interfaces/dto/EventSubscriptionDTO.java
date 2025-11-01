@@ -16,8 +16,7 @@
 
 package com.firefly.common.callbacks.interfaces.dto;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -44,27 +43,35 @@ public class EventSubscriptionDTO {
 
     /**
      * Name of the subscription (e.g., "Customer Service Events").
+     * Must be between 1 and 255 characters.
      */
     @NotBlank(message = "Name is required")
+    @Size(min = 1, max = 255, message = "Name must be between 1 and 255 characters")
     private String name;
 
     /**
      * Description of the subscription.
+     * Maximum 2000 characters.
      */
+    @Size(max = 2000, message = "Description must not exceed 2000 characters")
     private String description;
 
     /**
      * Messaging system type (KAFKA, RABBITMQ, PULSAR, AWS_SQS, etc.).
+     * Must be between 1 and 50 characters.
      */
     @NotBlank(message = "Messaging system type is required")
+    @Size(min = 1, max = 50, message = "Messaging system type must be between 1 and 50 characters")
     private String messagingSystemType;
 
     /**
      * Connection configuration for the messaging system.
      * Example for Kafka: {"bootstrap.servers": "localhost:9092", "group.id": "callbacks-consumer"}
      * Example for RabbitMQ: {"host": "localhost", "port": "5672", "username": "guest"}
+     * Must contain at least one configuration entry.
      */
     @NotNull(message = "Connection config is required")
+    @Size(min = 1, message = "Connection config must contain at least one entry")
     private Map<String, String> connectionConfig;
 
     /**
@@ -72,13 +79,17 @@ public class EventSubscriptionDTO {
      * For Kafka: topic name
      * For RabbitMQ: queue name
      * For SQS: queue URL
+     * Must be between 1 and 500 characters.
      */
     @NotBlank(message = "Topic/queue name is required")
+    @Size(min = 1, max = 500, message = "Topic/queue name must be between 1 and 500 characters")
     private String topicOrQueue;
 
     /**
      * Consumer group ID (for systems that support it like Kafka).
+     * Maximum 255 characters.
      */
+    @Size(max = 255, message = "Consumer group ID must not exceed 255 characters")
     private String consumerGroupId;
 
     /**
@@ -100,19 +111,27 @@ public class EventSubscriptionDTO {
 
     /**
      * Maximum number of concurrent consumers for this subscription.
+     * Must be between 1 and 100.
      */
     @Builder.Default
+    @Min(value = 1, message = "Max concurrent consumers must be at least 1")
+    @Max(value = 100, message = "Max concurrent consumers must not exceed 100")
     private Integer maxConcurrentConsumers = 1;
 
     /**
      * Polling interval in milliseconds (for pull-based systems).
+     * Must be between 100ms and 60000ms (1 minute).
      */
     @Builder.Default
+    @Min(value = 100, message = "Polling interval must be at least 100ms")
+    @Max(value = 60000, message = "Polling interval must not exceed 60000ms (1 minute)")
     private Integer pollingIntervalMs = 1000;
 
     /**
      * Tenant ID for multi-tenancy.
+     * Maximum 100 characters.
      */
+    @Size(max = 100, message = "Tenant ID must not exceed 100 characters")
     private String tenantId;
 
     /**
@@ -127,14 +146,18 @@ public class EventSubscriptionDTO {
 
     /**
      * Total messages received from this subscription.
+     * Must be non-negative.
      */
     @Builder.Default
+    @Min(value = 0, message = "Total messages received must be non-negative")
     private Long totalMessagesReceived = 0L;
 
     /**
      * Total messages failed to process.
+     * Must be non-negative.
      */
     @Builder.Default
+    @Min(value = 0, message = "Total messages failed must be non-negative")
     private Long totalMessagesFailed = 0L;
 
     /**
@@ -149,11 +172,15 @@ public class EventSubscriptionDTO {
 
     /**
      * User who created the subscription.
+     * Maximum 255 characters.
      */
+    @Size(max = 255, message = "Created by must not exceed 255 characters")
     private String createdBy;
 
     /**
      * User who last updated the subscription.
+     * Maximum 255 characters.
      */
+    @Size(max = 255, message = "Updated by must not exceed 255 characters")
     private String updatedBy;
 }

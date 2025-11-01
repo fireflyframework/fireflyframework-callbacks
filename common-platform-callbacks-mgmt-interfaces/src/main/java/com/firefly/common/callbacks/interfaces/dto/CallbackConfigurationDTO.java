@@ -18,8 +18,7 @@ package com.firefly.common.callbacks.interfaces.dto;
 
 import com.firefly.common.callbacks.interfaces.enums.CallbackStatus;
 import com.firefly.common.callbacks.interfaces.enums.HttpMethod;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -46,19 +45,26 @@ public class CallbackConfigurationDTO {
 
     /**
      * Name of the callback configuration.
+     * Must be between 1 and 255 characters.
      */
     @NotBlank(message = "Name is required")
+    @Size(min = 1, max = 255, message = "Name must be between 1 and 255 characters")
     private String name;
 
     /**
      * Description of the callback configuration.
+     * Maximum 2000 characters.
      */
+    @Size(max = 2000, message = "Description must not exceed 2000 characters")
     private String description;
 
     /**
      * Target URL for the callback endpoint.
+     * Must be a valid HTTP or HTTPS URL with maximum length of 2048 characters.
      */
     @NotBlank(message = "URL is required")
+    @Size(max = 2048, message = "URL must not exceed 2048 characters")
+    @Pattern(regexp = "^https?://.*", message = "URL must start with http:// or https://")
     private String url;
 
     /**
@@ -78,8 +84,10 @@ public class CallbackConfigurationDTO {
     /**
      * Array of event types this callback is subscribed to.
      * Examples: "customer.created", "loan.approved", "payment.received"
+     * Must contain at least one event type.
      */
     @NotNull(message = "Event types are required")
+    @Size(min = 1, message = "At least one event type must be specified")
     private String[] subscribedEventTypes;
 
     /**
@@ -89,7 +97,9 @@ public class CallbackConfigurationDTO {
 
     /**
      * Secret for HMAC signature generation (if enabled).
+     * Maximum 500 characters. Required if signatureEnabled is true.
      */
+    @Size(max = 500, message = "Secret must not exceed 500 characters")
     private String secret;
 
     /**
@@ -100,31 +110,45 @@ public class CallbackConfigurationDTO {
 
     /**
      * Signature header name (e.g., "X-Firefly-Signature").
+     * Maximum 100 characters. Defaults to "X-Firefly-Signature" if not specified.
      */
+    @Size(max = 100, message = "Signature header must not exceed 100 characters")
     private String signatureHeader;
 
     /**
      * Maximum number of retry attempts for failed callbacks.
+     * Must be between 0 and 10.
      */
     @Builder.Default
+    @Min(value = 0, message = "Max retries must be at least 0")
+    @Max(value = 10, message = "Max retries must not exceed 10")
     private Integer maxRetries = 3;
 
     /**
      * Initial retry delay in milliseconds.
+     * Must be between 100ms and 300000ms (5 minutes).
      */
     @Builder.Default
+    @Min(value = 100, message = "Retry delay must be at least 100ms")
+    @Max(value = 300000, message = "Retry delay must not exceed 300000ms (5 minutes)")
     private Integer retryDelayMs = 1000;
 
     /**
      * Retry backoff multiplier (exponential backoff).
+     * Must be between 1.0 and 10.0.
      */
     @Builder.Default
+    @DecimalMin(value = "1.0", message = "Retry backoff multiplier must be at least 1.0")
+    @DecimalMax(value = "10.0", message = "Retry backoff multiplier must not exceed 10.0")
     private Double retryBackoffMultiplier = 2.0;
 
     /**
      * Timeout for the callback request in milliseconds.
+     * Must be between 1000ms (1 second) and 300000ms (5 minutes).
      */
     @Builder.Default
+    @Min(value = 1000, message = "Timeout must be at least 1000ms (1 second)")
+    @Max(value = 300000, message = "Timeout must not exceed 300000ms (5 minutes)")
     private Integer timeoutMs = 30000;
 
     /**
@@ -135,12 +159,16 @@ public class CallbackConfigurationDTO {
 
     /**
      * Organization or tenant ID that owns this callback configuration.
+     * Maximum 100 characters.
      */
+    @Size(max = 100, message = "Tenant ID must not exceed 100 characters")
     private String tenantId;
 
     /**
      * Optional filter expression (JSONPath or similar) to filter events.
+     * Maximum 1000 characters.
      */
+    @Size(max = 1000, message = "Filter expression must not exceed 1000 characters")
     private String filterExpression;
 
     /**
@@ -150,14 +178,19 @@ public class CallbackConfigurationDTO {
 
     /**
      * Number of consecutive failures before auto-disabling.
+     * Must be between 1 and 100.
      */
     @Builder.Default
+    @Min(value = 1, message = "Failure threshold must be at least 1")
+    @Max(value = 100, message = "Failure threshold must not exceed 100")
     private Integer failureThreshold = 10;
 
     /**
      * Current failure count.
+     * Must be non-negative.
      */
     @Builder.Default
+    @Min(value = 0, message = "Failure count must be non-negative")
     private Integer failureCount = 0;
 
     /**
@@ -182,11 +215,15 @@ public class CallbackConfigurationDTO {
 
     /**
      * User who created the configuration.
+     * Maximum 255 characters.
      */
+    @Size(max = 255, message = "Created by must not exceed 255 characters")
     private String createdBy;
 
     /**
      * User who last updated the configuration.
+     * Maximum 255 characters.
      */
+    @Size(max = 255, message = "Updated by must not exceed 255 characters")
     private String updatedBy;
 }

@@ -16,8 +16,7 @@
 
 package com.firefly.common.callbacks.interfaces.dto;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -44,18 +43,25 @@ public class AuthorizedDomainDTO {
 
     /**
      * Domain name (e.g., "api.example.com", "*.example.com" for wildcard, "localhost:8080").
+     * Must be between 1 and 255 characters.
      */
     @NotBlank(message = "Domain is required")
+    @Size(min = 1, max = 255, message = "Domain must be between 1 and 255 characters")
     private String domain;
 
     /**
      * Organization or owner of this domain.
+     * Maximum 255 characters.
      */
+    @Size(max = 255, message = "Organization must not exceed 255 characters")
     private String organization;
 
     /**
      * Contact email for this domain.
+     * Must be a valid email address with maximum 255 characters.
      */
+    @Email(message = "Contact email must be a valid email address")
+    @Size(max = 255, message = "Contact email must not exceed 255 characters")
     private String contactEmail;
 
     /**
@@ -66,12 +72,16 @@ public class AuthorizedDomainDTO {
 
     /**
      * Verification method used (DNS, HTTP, EMAIL).
+     * Maximum 50 characters.
      */
+    @Size(max = 50, message = "Verification method must not exceed 50 characters")
     private String verificationMethod;
 
     /**
      * Verification token for domain verification.
+     * Maximum 500 characters.
      */
+    @Size(max = 500, message = "Verification token must not exceed 500 characters")
     private String verificationToken;
 
     /**
@@ -93,8 +103,11 @@ public class AuthorizedDomainDTO {
 
     /**
      * Maximum callbacks per minute for this domain (rate limiting).
+     * Must be between 1 and 10000.
      */
     @Builder.Default
+    @Min(value = 1, message = "Max callbacks per minute must be at least 1")
+    @Max(value = 10000, message = "Max callbacks per minute must not exceed 10000")
     private Integer maxCallbacksPerMinute = 100;
 
     /**
@@ -110,12 +123,16 @@ public class AuthorizedDomainDTO {
 
     /**
      * Tenant ID for multi-tenancy.
+     * Maximum 100 characters.
      */
+    @Size(max = 100, message = "Tenant ID must not exceed 100 characters")
     private String tenantId;
 
     /**
      * Additional notes about this domain.
+     * Maximum 2000 characters.
      */
+    @Size(max = 2000, message = "Notes must not exceed 2000 characters")
     private String notes;
 
     /**
@@ -135,14 +152,18 @@ public class AuthorizedDomainDTO {
 
     /**
      * Total callbacks sent to this domain.
+     * Must be non-negative.
      */
     @Builder.Default
+    @Min(value = 0, message = "Total callbacks must be non-negative")
     private Long totalCallbacks = 0L;
 
     /**
      * Total failed callbacks to this domain.
+     * Must be non-negative.
      */
     @Builder.Default
+    @Min(value = 0, message = "Total failed must be non-negative")
     private Long totalFailed = 0L;
 
     /**
@@ -157,6 +178,8 @@ public class AuthorizedDomainDTO {
 
     /**
      * User who authorized the domain.
+     * Maximum 255 characters.
      */
+    @Size(max = 255, message = "Authorized by must not exceed 255 characters")
     private String authorizedBy;
 }
