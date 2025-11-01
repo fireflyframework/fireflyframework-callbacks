@@ -20,7 +20,6 @@
 - [Configuration](#configuration)
 - [Building & Running](#building--running)
 - [Testing](#testing)
-- [Contributing](#contributing)
 - [License](#license)
 
 ## 🎯 Overview
@@ -99,11 +98,11 @@ The **Firefly Callback Management Platform** is a reactive, event-driven microse
          ▼
 ┌─────────────────────────────────────────────────────────┐
 │         Callback Management Platform                    │
-│                                                          │
-│  ┌──────────────┐    ┌──────────────┐                  │
-│  │   Dynamic    │───▶│   Callback   │                  │
-│  │   Listener   │    │    Router    │                  │
-│  │   Factory    │    └──────┬───────┘                  │
+│                                                         │
+│  ┌──────────────┐    ┌──────────────┐                   │
+│  │   Dynamic    │───▶│   Callback   │                   │
+│  │   Listener   │    │    Router    │                   │
+│  │   Factory    │    └──────┬───────┘                   │
 │  └──────────────┘           │                           │
 │                             ▼                           │
 │                    ┌────────────────┐                   │
@@ -113,10 +112,10 @@ The **Firefly Callback Management Platform** is a reactive, event-driven microse
 │                    │   Retry)       │                   │
 │                    └────────┬───────┘                   │
 │                             │                           │
-│  ┌──────────────┐           │      ┌──────────────┐    │
-│  │   Domain     │◀──────────┤      │  Execution   │    │
-│  │Authorization │           │      │   Tracker    │    │
-│  └──────────────┘           │      └──────────────┘    │
+│  ┌──────────────┐           │      ┌──────────────┐     │
+│  │   Domain     │◀──────────┤      │  Execution   │     │
+│  │Authorization │           │      │   Tracker    │     │
+│  └──────────────┘           │      └──────────────┘     │
 │                             │                           │
 │                             ▼                           │
 │                    ┌────────────────┐                   │
@@ -210,6 +209,9 @@ For a complete quickstart guide, see [docs/QUICKSTART_GUIDE.md](docs/QUICKSTART_
 
 | Document | Description |
 |----------|-------------|
+| [**Callback System Summary**](docs/CALLBACK_SYSTEM_SUMMARY.md) | **⭐ START HERE** - Executive summary of the complete callback system implementation |
+| [Callback System Reference](docs/CALLBACK_SYSTEM_REFERENCE.md) | Complete reference - domains, configurations, HMAC, retries, metadata, best practices |
+| [Callback Examples](docs/CALLBACK_EXAMPLES.md) | Practical examples - Salesforce, Zapier, OAuth, custom integrations, testing |
 | [Architecture Deep Dive](docs/ARCHITECTURE.md) | Complete architectural overview, design patterns, and data models |
 | [Quickstart Guide](docs/QUICKSTART_GUIDE.md) | Step-by-step guide to get started quickly |
 | [Testing Guide](docs/TESTING_GUIDE.md) | Comprehensive testing strategies and examples |
@@ -288,7 +290,7 @@ common-platform-callbacks-mgmt/
 
 ### Event Subscriptions
 ```
-POST   /api/v1/event-subscriptions/filter    # Filter subscriptions (paginated)
+POST   /api/v1/event-subscriptions/filter     # Filter subscriptions (paginated)
 POST   /api/v1/event-subscriptions            # Create subscription
 GET    /api/v1/event-subscriptions/{id}       # Get by ID
 PUT    /api/v1/event-subscriptions/{id}       # Update subscription
@@ -297,11 +299,11 @@ DELETE /api/v1/event-subscriptions/{id}       # Delete subscription
 
 ### Authorized Domains
 ```
-POST   /api/v1/authorized-domains/filter      # Filter domains (paginated)
-POST   /api/v1/authorized-domains             # Create domain
-PUT    /api/v1/authorized-domains/{id}        # Update domain
-POST   /api/v1/authorized-domains/{domain}/verify  # Verify domain
-DELETE /api/v1/authorized-domains/{id}        # Delete domain
+POST   /api/v1/authorized-domains/filter              # Filter domains (paginated)
+POST   /api/v1/authorized-domains                     # Create domain
+PUT    /api/v1/authorized-domains/{id}                # Update domain
+POST   /api/v1/authorized-domains/{domain}/verify     # Verify domain (requires verificationMethod param)
+DELETE /api/v1/authorized-domains/{id}                # Delete domain (requires domain param)
 ```
 
 ### Callback Configurations
@@ -315,9 +317,13 @@ DELETE /api/v1/callback-configurations/{id}   # Delete configuration
 
 ### Callback Executions
 ```
-POST   /api/v1/callback-executions/filter     # Filter executions (paginated)
-GET    /api/v1/callback-executions             # List all executions
-GET    /api/v1/callback-executions/{id}       # Get by ID
+POST   /api/v1/callback-executions/filter                                            # Filter executions (paginated)
+GET    /api/v1/callback-executions                                                   # List all executions
+GET    /api/v1/callback-executions/{id}                                              # Get by ID
+GET    /api/v1/callback-executions/by-configuration/{configId}                       # List by configuration
+GET    /api/v1/callback-executions/by-status?status={status}                         # List by status
+GET    /api/v1/callback-executions/pending-retries                                   # List pending retries
+GET    /api/v1/callback-executions/recent?configurationId={id}&duration={duration}   # List recent executions
 ```
 
 **Full API documentation available at:** `http://localhost:8080/swagger-ui.html`
@@ -330,29 +336,32 @@ Key configuration properties in `application.yml`:
 # Database
 spring:
   r2dbc:
-    url: r2dbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    url: r2dbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:callbacks_db}
+    username: ${DB_USERNAME:firefly}
+    password: ${DB_PASSWORD:firefly}
 
-# Kafka
-eda:
-  kafka:
-    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
-    consumer:
-      group-id: callbacks-mgmt-consumer
-
-# Circuit Breaker
+# Kafka (via Firefly EDA)
 firefly:
+  eda:
+    consumer:
+      enabled: true
+    consumers:
+      kafka:
+        default:
+          bootstrap-servers: ${FIREFLY_KAFKA_BOOTSTRAP_SERVERS}
+          properties:
+            group.id: callbacks-mgmt-consumer
+
+  # Callbacks Configuration
   callbacks:
     circuit-breaker:
-      failure-rate-threshold: 50
-      wait-duration-in-open-state-ms: 60000
-    
-    # Retry
+      failure-rate-threshold: ${CALLBACK_CB_FAILURE_RATE:50}
+      wait-duration-in-open-state-ms: ${CALLBACK_CB_WAIT_DURATION:60000}
+
     retry:
-      max-attempts: 3
-      initial-delay-ms: 1000
-      max-delay-ms: 60000
+      max-attempts: ${CALLBACK_RETRY_MAX_ATTEMPTS:3}
+      initial-delay-ms: ${CALLBACK_RETRY_INITIAL_DELAY:1000}
+      max-delay-ms: ${CALLBACK_RETRY_MAX_DELAY:60000}
 ```
 
 See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for complete configuration reference.
@@ -410,13 +419,21 @@ mvn clean test jacoco:report
 
 See [docs/TESTING_GUIDE.md](docs/TESTING_GUIDE.md) for detailed testing documentation.
 
-## 🤝 Contributing
-
-We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
-
 ## 📄 License
 
-This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
+**© 2025 Firefly Software Solutions Inc. All rights reserved.**
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 
 ---
 

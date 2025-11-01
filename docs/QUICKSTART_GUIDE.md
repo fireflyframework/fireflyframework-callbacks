@@ -299,6 +299,10 @@ curl -X POST http://localhost:8080/api/v1/event-subscriptions \
     "name": "Customer Events Subscription",
     "description": "Subscribe to all customer events",
     "messagingSystemType": "KAFKA",
+    "connectionConfig": {
+      "bootstrap.servers": "localhost:9092",
+      "group.id": "callbacks-consumer"
+    },
     "topicOrQueue": "customer.events",
     "consumerGroupId": "callbacks-consumer",
     "eventTypePatterns": ["customer.*"],
@@ -311,9 +315,20 @@ curl -X POST http://localhost:8080/api/v1/event-subscriptions \
 {
   "id": "234e5678-e89b-12d3-a456-426614174001",
   "name": "Customer Events Subscription",
+  "description": "Subscribe to all customer events",
+  "messagingSystemType": "KAFKA",
+  "connectionConfig": {
+    "bootstrap.servers": "localhost:9092",
+    "group.id": "callbacks-consumer"
+  },
   "topicOrQueue": "customer.events",
+  "consumerGroupId": "callbacks-consumer",
   "eventTypePatterns": ["customer.*"],
   "active": true,
+  "maxConcurrentConsumers": 1,
+  "pollingIntervalMs": 1000,
+  "totalMessagesReceived": 0,
+  "totalMessagesFailed": 0,
   "createdAt": "2025-01-15T10:01:00Z"
 }
 ```
@@ -350,13 +365,19 @@ curl -X POST http://localhost:8080/api/v1/callback-configurations \
 {
   "id": "345e6789-e89b-12d3-a456-426614174002",
   "name": "Customer CRM Webhook",
+  "description": "Send customer events to CRM",
   "url": "https://webhook.site/YOUR-UNIQUE-ID",
   "httpMethod": "POST",
-  "subscribedEventTypes": ["customer.created", "customer.updated"],
   "status": "ACTIVE",
+  "subscribedEventTypes": ["customer.created", "customer.updated"],
   "signatureEnabled": true,
   "maxRetries": 3,
+  "retryDelayMs": 1000,
+  "retryBackoffMultiplier": 2.0,
+  "timeoutMs": 30000,
   "active": true,
+  "failureThreshold": 10,
+  "failureCount": 0,
   "createdAt": "2025-01-15T10:02:00Z"
 }
 ```
@@ -461,7 +482,7 @@ curl -X POST http://localhost:8080/api/v1/callback-executions/filter \
       "sourceEventId": "456e7890-e89b-12d3-a456-426614174003",
       "status": "SUCCESS",
       "responseStatusCode": 200,
-      "attemptNumber": 1,
+      "attemptNumber": 0,
       "requestDurationMs": 245,
       "executedAt": "2025-01-15T10:03:01Z",
       "completedAt": "2025-01-15T10:03:01Z"
@@ -471,8 +492,10 @@ curl -X POST http://localhost:8080/api/v1/callback-executions/filter \
   "size": 10,
   "totalElements": 1,
   "totalPages": 1,
+  "numberOfElements": 1,
   "first": true,
-  "last": true
+  "last": true,
+  "empty": false
 }
 ```
 
@@ -612,7 +635,9 @@ curl -X POST http://localhost:8080/api/v1/callback-configurations \
     "httpMethod": "POST",
     "subscribedEventTypes": ["*"],
     "status": "ACTIVE",
-    "customHeaders": "{\"Authorization\": \"Bearer YOUR_SEGMENT_KEY\"}",
+    "customHeaders": {
+      "Authorization": "Bearer YOUR_SEGMENT_KEY"
+    },
     "active": true
   }' | jq
 ```
@@ -792,6 +817,22 @@ curl http://localhost:8080/actuator/metrics/http.client.requests
 - 🧪 [Testing Guide](TESTING_GUIDE.md)
 - 🐛 [Report Issues](https://github.com/firefly-oss/common-platform-callbacks-mgmt/issues)
 - 💬 [Discussions](https://github.com/firefly-oss/common-platform-callbacks-mgmt/discussions)
+
+---
+
+**© 2025 Firefly Software Solutions Inc. All rights reserved.**
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 
 **Happy Coding! 🚀**
 

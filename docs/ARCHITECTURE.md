@@ -40,89 +40,88 @@ The Firefly Callback Management Platform is a **reactive, event-driven microserv
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
-│                         Firefly Ecosystem                                │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐                  │
-│  │   Customer   │  │     Loan     │  │   Payment    │                  │
-│  │  Management  │  │  Management  │  │  Management  │                  │
-│  └──────┬───────┘  └──────┬───────┘  └──────┬───────┘                  │
-│         │                 │                 │                           │
-│         └─────────────────┴─────────────────┘                           │
-│                           │                                              │
-│                           ▼                                              │
-│                  ┌─────────────────┐                                     │
-│                  │  Apache Kafka   │                                     │
-│                  │  Event Streams  │                                     │
-│                  └────────┬────────┘                                     │
-└──────────────────────────┼──────────────────────────────────────────────┘
-                           │
-                           ▼
+│                              Firefly Ecosystem                          │
+│         ┌──────────────┐  ┌──────────────┐  ┌──────────────┐            │
+│         │   Customer   │  │     Loan     │  │   Payment    │            │
+│         │  Management  │  │  Management  │  │  Management  │            │
+│         └──────┬───────┘  └──────┬───────┘  └──────┬───────┘            │
+│                │                 │                 │                    │
+│                └─────────────────┴─────────────────┘                    │
+│                                  │                                      │
+│                                  ▼                                      │
+│                         ┌─────────────────┐                             │
+│                         │  Apache Kafka   │                             │
+│                         │  Event Streams  │                             │
+│                         └────────┬────────┘                             │
+└──────────────────────────────────┼──────────────────────────────────────┘ 
+                                   ▼
 ┌─────────────────────────────────────────────────────────────────────────┐
-│              Callback Management Platform (This Service)                 │
-│                                                                          │
-│  ┌────────────────────────────────────────────────────────────────┐    │
-│  │                      Web Layer (WebFlux)                        │    │
-│  │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐         │    │
-│  │  │ Subscription │  │   Domain     │  │  Callback    │         │    │
-│  │  │ Controller   │  │ Controller   │  │ Controller   │         │    │
-│  │  └──────┬───────┘  └──────┬───────┘  └──────┬───────┘         │    │
-│  └─────────┼──────────────────┼──────────────────┼────────────────┘    │
+│              Callback Management Platform (This Service)                │
+│                                                                         │
+│  ┌────────────────────────────────────────────────────────────────┐     │
+│  │                      Web Layer (WebFlux)                       │     │
+│  │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐          │     │
+│  │  │ Subscription │  │   Domain     │  │  Callback    │          │     │
+│  │  │ Controller   │  │ Controller   │  │ Controller   │          │     │
+│  │  └──────┬───────┘  └───────┬──────┘  └────────┬─────┘          │     │
+│  └─────────┼──────────────────┼──────────────────┼────────────────┘     │
 │            │                  │                  │                      │
-│  ┌─────────┼──────────────────┼──────────────────┼────────────────┐    │
-│  │         │      Service Layer (Business Logic)  │                │    │
-│  │         ▼                  ▼                  ▼                │    │
-│  │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐         │    │
-│  │  │ Subscription │  │ Authorization│  │Configuration │         │    │
-│  │  │   Service    │  │   Service    │  │   Service    │         │    │
-│  │  └──────┬───────┘  └──────┬───────┘  └──────┬───────┘         │    │
-│  └─────────┼──────────────────┼──────────────────┼────────────────┘    │
+│  ┌─────────┼──────────────────┼──────────────────┼────────────────┐     │
+│  │         │      Service Layer (Business Logic)  │               │     │
+│  │         ▼                  ▼                  ▼                │     │
+│  │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐          │     │
+│  │  │ Subscription │  │ Authorization│  │Configuration │          │     │
+│  │  │   Service    │  │   Service    │  │   Service    │          │     │
+│  │  └──────┬───────┘  └───────┬──────┘  └────────┬─────┘          │     │
+│  └─────────┼──────────────────┼──────────────────┼────────────────┘     │
 │            │                  │                  │                      │
-│  ┌─────────┼──────────────────┼──────────────────┼────────────────┐    │
-│  │         │      Event Processing Layer          │                │    │
-│  │         ▼                  │                  │                │    │
-│  │  ┌──────────────┐          │                  │                │    │
-│  │  │   Dynamic    │          │                  │                │    │
-│  │  │   Listener   │──────────┼──────────────────┘                │    │
-│  │  │   Factory    │          │                                   │    │
-│  │  └──────┬───────┘          │                                   │    │
-│  │         │                  │                                   │    │
-│  │         ▼                  │                                   │    │
-│  │  ┌──────────────┐          │                                   │    │
-│  │  │   Callback   │◀─────────┘                                   │    │
-│  │  │    Router    │                                              │    │
-│  │  └──────┬───────┘                                              │    │
-│  │         │                                                      │    │
-│  │         ▼                                                      │    │
-│  │  ┌──────────────┐                                              │    │
-│  │  │   Callback   │                                              │    │
-│  │  │  Dispatcher  │                                              │    │
-│  │  │ (Circuit     │                                              │    │
-│  │  │  Breaker +   │                                              │    │
-│  │  │  Retry)      │                                              │    │
-│  │  └──────┬───────┘                                              │    │
-│  └─────────┼──────────────────────────────────────────────────────┘    │
+│  ┌─────────┼──────────────────┼──────────────────┼────────────────┐     │
+│  │         │      Event Processing Layer         │                │     │
+│  │         ▼                  │                  │                │     │
+│  │  ┌──────────────┐          │                  │                │     │
+│  │  │   Dynamic    │          │                  │                │     │
+│  │  │   Listener   │──────────┼──────────────────┘                │     │
+│  │  │   Factory    │          │                                   │     │
+│  │  └──────┬───────┘          │                                   │     │
+│  │         │                  │                                   │     │
+│  │         ▼                  │                                   │     │
+│  │  ┌──────────────┐          │                                   │     │
+│  │  │   Callback   │◀─────────┘                                   │     │
+│  │  │    Router    │                                              │     │
+│  │  └──────┬───────┘                                              │     │
+│  │         │                                                      │     │
+│  │         ▼                                                      │     │
+│  │  ┌──────────────┐                                              │     │
+│  │  │   Callback   │                                              │     │
+│  │  │  Dispatcher  │                                              │     │
+│  │  │ (Circuit     │                                              │     │
+│  │  │  Breaker +   │                                              │     │
+│  │  │  Retry)      │                                              │     │
+│  │  └──────┬───────┘                                              │     │
+│  └─────────┼──────────────────────────────────────────────────────┘     │
 │            │                                                            │
-│  ┌─────────┼──────────────────────────────────────────────────────┐    │
-│  │         │         Data Layer (R2DBC)                           │    │
-│  │         ▼                                                      │    │
-│  │  ┌──────────────────────────────────────────────────┐         │    │
-│  │  │              PostgreSQL Database                 │         │    │
-│  │  │  ┌────────────┐  ┌────────────┐  ┌────────────┐ │         │    │
-│  │  │  │Subscriptions│  │  Domains   │  │  Configs   │ │         │    │
-│  │  │  └────────────┘  └────────────┘  └────────────┘ │         │    │
-│  │  │  ┌────────────┐                                  │         │    │
-│  │  │  │ Executions │                                  │         │    │
-│  │  │  └────────────┘                                  │         │    │
-│  │  └──────────────────────────────────────────────────┘         │    │
-│  └────────────────────────────────────────────────────────────────┘    │
-└──────────────────────────┬───────────────────────────────────────────────┘
+│  ┌─────────┼──────────────────────────────────────────────────────┐     │
+│  │         │         Data Layer (R2DBC)                           │     │
+│  │         ▼                                                      │     │
+│  │  ┌──────────────────────────────────────────────────┐          │     │ 
+│  │  │              PostgreSQL Database                 │          │     │ 
+│  │  │  ┌────────────┐  ┌────────────┐  ┌────────────┐  │          │     │
+│  │  │  │Subscriptions│ │  Domains   │  │  Configs   │  │          │     │
+│  │  │  └────────────┘  └────────────┘  └────────────┘  │          │     │
+│  │  │  ┌────────────┐                                  │          │     │
+│  │  │  │ Executions │                                  │          │     │
+│  │  │  └────────────┘                                  │          │     │
+│  │  └──────────────────────────────────────────────────┘          │     │
+│  └────────────────────────────────────────────────────────────────┘     │
+└──────────────────────────┬──────────────────────────────────────────────┘
                            │ HTTP Callbacks
                            ▼
 ┌─────────────────────────────────────────────────────────────────────────┐
-│                      External Systems                                    │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐                  │
-│  │     CRM      │  │  Analytics   │  │   Webhooks   │                  │
-│  │  (Salesforce)│  │  (Segment)   │  │   (Custom)   │                  │
-│  └──────────────┘  └──────────────┘  └──────────────┘                  │
+│                      External Systems                                   │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐                   │
+│  │     CRM      │  │  Analytics   │  │   Webhooks   │                   │
+│  │  (Salesforce)│  │  (Segment)   │  │   (Custom)   │                   │
+│  └──────────────┘  └──────────────┘  └──────────────┘                   │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -222,24 +221,34 @@ common-platform-callbacks-mgmt/
 ```java
 @Component
 public class DynamicListenerFactory {
-    
-    @PostConstruct
-    public void initializeListeners() {
-        // Load all active subscriptions from database
-        subscriptionService.findAllActive()
-            .doOnNext(this::registerSubscription)
-            .subscribe();
-    }
-    
+
+    private final CallbackRouter callbackRouter;
+    private final DynamicEventListenerRegistry listenerRegistry;
+
+    /**
+     * Registers a single subscription as a dynamic listener.
+     * Called when subscriptions are created via EventSubscriptionService.
+     */
     public void registerSubscription(EventSubscriptionDTO subscription) {
-        // Register with lib-common-eda's dynamic registry
+        if (!"KAFKA".equalsIgnoreCase(subscription.getMessagingSystemType())) {
+            return; // Only Kafka supported currently
+        }
+
+        // Register listener using lib-common-eda's registry
         listenerRegistry.registerListener(
             subscription.getId().toString(),
             subscription.getTopicOrQueue(),
-            subscription.getEventTypePatterns(),
+            subscription.getEventTypePatterns() != null ? subscription.getEventTypePatterns() : new String[0],
             PublisherType.AUTO,
             (event, headers) -> handleEvent(event, headers, subscription)
         );
+    }
+
+    /**
+     * Unregisters a subscription's dynamic listener.
+     */
+    public void unregisterSubscription(UUID subscriptionId) {
+        listenerRegistry.unregisterListener(subscriptionId.toString());
     }
 }
 ```
@@ -606,55 +615,55 @@ CREATE TABLE callback_executions (
                                    │
 ┌──────────────────────────────────┼──────────────────────────────────────┐
 │ 2. Event Consumption (Callback Platform)                                │
-│                                  │                                       │
-│                                  ▼                                       │
+│                                  │                                      │
+│                                  ▼                                      │
 │                    ┌──────────────────────────┐                         │
 │                    │  DynamicListenerFactory  │                         │
 │                    │  (Registered listener)   │                         │
 │                    └────────────┬─────────────┘                         │
-│                                 │                                        │
-│                                 ▼                                        │
+│                                 │                                       │
+│                                 ▼                                       │
 │                    ┌──────────────────────────┐                         │
 │                    │  Extract Event Metadata  │                         │
 │                    │  - eventType             │                         │
 │                    │  - eventId               │                         │
 │                    │  - payload               │                         │
 │                    └────────────┬─────────────┘                         │
-│                                 │                                        │
-│                                 ▼                                        │
+│                                 │                                       │
+│                                 ▼                                       │
 │                    ┌──────────────────────────┐                         │
 │                    │  Match Event Type        │                         │
 │                    │  Against Patterns        │                         │
 │                    │  (customer.* matches     │                         │
 │                    │   customer.created)      │                         │
 │                    └────────────┬─────────────┘                         │
-└─────────────────────────────────┼──────────────────────────────────────┘
+└─────────────────────────────────┼───────────────────────────────────────┘
                                   │
 ┌─────────────────────────────────┼──────────────────────────────────────┐
-│ 3. Event Routing                │                                       │
-│                                  ▼                                       │
-│                    ┌──────────────────────────┐                         │
-│                    │    CallbackRouter        │                         │
-│                    └────────────┬─────────────┘                         │
-│                                 │                                        │
-│                                 ▼                                        │
-│                    ┌──────────────────────────┐                         │
-│                    │  Query Database:         │                         │
-│                    │  SELECT * FROM           │                         │
-│                    │  callback_configurations │                         │
-│                    │  WHERE                   │                         │
-│                    │    'customer.created'    │                         │
-│                    │    = ANY(subscribed_     │                         │
-│                    │         event_types)     │                         │
-│                    │    AND active = true     │                         │
-│                    └────────────┬─────────────┘                         │
-│                                 │                                        │
-│                                 ▼                                        │
-│                    ┌──────────────────────────┐                         │
-│                    │  Found 2 Configurations: │                         │
-│                    │  1. CRM Webhook          │                         │
-│                    │  2. Analytics Webhook    │                         │
-│                    └────────────┬─────────────┘                         │
+│ 3. Event Routing                │                                      │
+│                                  ▼                                     │
+│                    ┌──────────────────────────┐                        │
+│                    │    CallbackRouter        │                        │
+│                    └────────────┬─────────────┘                        │
+│                                 │                                      │
+│                                 ▼                                      │
+│                    ┌──────────────────────────┐                        │
+│                    │  Query Database:         │                        │
+│                    │  SELECT * FROM           │                        │
+│                    │  callback_configurations │                        │
+│                    │  WHERE                   │                        │
+│                    │    'customer.created'    │                        │
+│                    │    = ANY(subscribed_     │                        │
+│                    │         event_types)     │                        │
+│                    │    AND active = true     │                        │
+│                    └────────────┬─────────────┘                        │
+│                                 │                                      │
+│                                 ▼                                      │
+│                    ┌──────────────────────────┐                        │
+│                    │  Found 2 Configurations: │                        │
+│                    │  1. CRM Webhook          │                        │
+│                    │  2. Analytics Webhook    │                        │
+│                    └────────────┬─────────────┘                        │
 └─────────────────────────────────┼──────────────────────────────────────┘
                                   │
                     ┌─────────────┴─────────────┐
@@ -871,7 +880,7 @@ CallbackConfigurationDTO config = CallbackConfigurationDTO.builder()
 │ Layer 1: Domain Authorization                               │
 │ - Whitelist-based URL validation                            │
 │ - Active and verified status checks                         │
-│ - HTTPS enforcement                                          │
+│ - HTTPS enforcement                                         │
 └─────────────────────────────────────────────────────────────┘
                             │
                             ▼
@@ -1250,4 +1259,20 @@ logging:
 - [Quickstart Guide](QUICKSTART_GUIDE.md)
 - [Testing Guide](TESTING_GUIDE.md)
 - [Main README](../README.md)
+
+---
+
+**© 2025 Firefly Software Solutions Inc. All rights reserved.**
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 
