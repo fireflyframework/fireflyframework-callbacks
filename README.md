@@ -345,7 +345,6 @@ firefly:
   eda:
     consumer:
       enabled: true
-    consumers:
       kafka:
         default:
           bootstrap-servers: ${FIREFLY_KAFKA_BOOTSTRAP_SERVERS}
