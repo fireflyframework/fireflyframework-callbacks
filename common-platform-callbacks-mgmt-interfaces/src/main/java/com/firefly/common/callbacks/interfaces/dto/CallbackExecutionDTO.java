@@ -17,6 +17,7 @@
 package com.firefly.common.callbacks.interfaces.dto;
 
 import com.firefly.common.callbacks.interfaces.enums.CallbackExecutionStatus;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -48,7 +49,9 @@ public class CallbackExecutionDTO {
 
     /**
      * Event type that triggered the callback.
+     * Maximum 255 characters.
      */
+    @Size(max = 255, message = "Event type must not exceed 255 characters")
     private String eventType;
 
     /**
@@ -59,6 +62,7 @@ public class CallbackExecutionDTO {
     /**
      * Execution status.
      */
+    @NotNull(message = "Status is required")
     private CallbackExecutionStatus status;
 
     /**
@@ -68,12 +72,17 @@ public class CallbackExecutionDTO {
 
     /**
      * HTTP response status code.
+     * Must be between 100 and 599.
      */
+    @Min(value = 100, message = "Response status code must be at least 100")
+    @Max(value = 599, message = "Response status code must not exceed 599")
     private Integer responseStatusCode;
 
     /**
      * HTTP response body.
+     * Maximum 10000 characters.
      */
+    @Size(max = 10000, message = "Response body must not exceed 10000 characters")
     private String responseBody;
 
     /**
@@ -88,28 +97,39 @@ public class CallbackExecutionDTO {
 
     /**
      * Execution attempt number (0-indexed).
+     * Must be non-negative.
      */
     @Builder.Default
+    @Min(value = 0, message = "Attempt number must be non-negative")
     private Integer attemptNumber = 0;
 
     /**
      * Maximum retry attempts configured.
+     * Must be between 0 and 10.
      */
+    @Min(value = 0, message = "Max attempts must be at least 0")
+    @Max(value = 10, message = "Max attempts must not exceed 10")
     private Integer maxAttempts;
 
     /**
      * Error message if execution failed.
+     * Maximum 2000 characters.
      */
+    @Size(max = 2000, message = "Error message must not exceed 2000 characters")
     private String errorMessage;
 
     /**
      * Error stack trace if available.
+     * Maximum 10000 characters.
      */
+    @Size(max = 10000, message = "Error stack trace must not exceed 10000 characters")
     private String errorStackTrace;
 
     /**
      * Duration of the HTTP request in milliseconds.
+     * Must be non-negative.
      */
+    @Min(value = 0, message = "Request duration must be non-negative")
     private Long requestDurationMs;
 
     /**
