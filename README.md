@@ -1,7 +1,7 @@
 # Firefly Framework Callbacks Library
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
-[![Java](https://img.shields.io/badge/Java-21-orange.svg)](https://openjdk.org/projects/jdk/21/)
+[![Java](https://img.shields.io/badge/Java-25-orange.svg)](https://openjdk.org/projects/jdk/21/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.2.2-brightgreen.svg)](https://spring.io/projects/spring-boot)
 [![Maven](https://img.shields.io/badge/Maven-3.8+-red.svg)](https://maven.apache.org/)
 
@@ -147,7 +147,7 @@ For detailed architecture documentation, see [docs/ARCHITECTURE.md](docs/ARCHITE
 
 ### Prerequisites
 
-- **Java 21** or higher
+- **Java 25** (default, Java 21+ compatible)
 - **Maven 3.8+**
 - **PostgreSQL 14+**
 - **Apache Kafka 3.0+** (or Confluent Platform 7.5+)
@@ -219,7 +219,7 @@ For a complete quickstart guide, see [docs/QUICKSTART_GUIDE.md](docs/QUICKSTART_
 ## 🛠️ Technology Stack
 
 ### Core Framework
-- **Spring Boot 3.2.2** - Application framework
+- **Spring Boot 3.5.9** - Application framework
 - **Spring WebFlux** - Reactive web framework
 - **Project Reactor** - Reactive programming library
 
