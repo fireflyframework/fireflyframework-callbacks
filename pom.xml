@@ -5,58 +5,54 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.firefly</groupId>
-        <artifactId>lib-parent-pom</artifactId>
+        <groupId>org.fireflyframework</groupId>
+        <artifactId>fireflyframework-parent</artifactId>
         <version>1.0.0-SNAPSHOT</version>
+        <relativePath/>
     </parent>
 
-    <artifactId>common-platform-callbacks-mgmt</artifactId>
+    <groupId>org.fireflyframework</groupId>
+    <artifactId>fireflyframework-callbacks</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
-    
-    <name>Firefly Callback Management Platform</name>
-    <description>Outbound webhook management platform for sending events from Firefly to third-party systems</description>
-    
-    <modules>
-        <module>common-platform-callbacks-mgmt-interfaces</module>
-        <module>common-platform-callbacks-mgmt-models</module>
-        <module>common-platform-callbacks-mgmt-core</module>
-        <module>common-platform-callbacks-mgmt-web</module>
-        <module>common-platform-callbacks-mgmt-sdk</module>
-    </modules>
 
-    <properties>
-        <common-platform-callbacks-mgmt.version>
-            1.0.0-SNAPSHOT
-        </common-platform-callbacks-mgmt.version>
-    </properties>
+    <name>Firefly Framework - Callbacks Library</name>
+    <description>Outbound webhook management platform for dispatching events to external systems with circuit breakers, retry logic, and domain authorization</description>
+
+    <modules>
+        <module>fireflyframework-callbacks-interfaces</module>
+        <module>fireflyframework-callbacks-models</module>
+        <module>fireflyframework-callbacks-core</module>
+        <module>fireflyframework-callbacks-web</module>
+        <module>fireflyframework-callbacks-sdk</module>
+    </modules>
 
     <dependencyManagement>
         <dependencies>
             <!-- Internal modules -->
             <dependency>
-                <groupId>com.firefly</groupId>
-                <artifactId>common-platform-callbacks-mgmt-interfaces</artifactId>
+                <groupId>org.fireflyframework</groupId>
+                <artifactId>fireflyframework-callbacks-interfaces</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.firefly</groupId>
-                <artifactId>common-platform-callbacks-mgmt-models</artifactId>
+                <groupId>org.fireflyframework</groupId>
+                <artifactId>fireflyframework-callbacks-models</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.firefly</groupId>
-                <artifactId>common-platform-callbacks-mgmt-core</artifactId>
+                <groupId>org.fireflyframework</groupId>
+                <artifactId>fireflyframework-callbacks-core</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.firefly</groupId>
-                <artifactId>common-platform-callbacks-mgmt-web</artifactId>
+                <groupId>org.fireflyframework</groupId>
+                <artifactId>fireflyframework-callbacks-web</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.firefly</groupId>
-                <artifactId>common-platform-callbacks-mgmt-sdk</artifactId>
+                <groupId>org.fireflyframework</groupId>
+                <artifactId>fireflyframework-callbacks-sdk</artifactId>
                 <version>${project.version}</version>
             </dependency>
         </dependencies>
