@@ -21,7 +21,7 @@ import org.springframework.context.annotation.ComponentScan;
 
 @TestConfiguration
 @ComponentScan(basePackages = {
-        "com.firefly.common.callbacks.web.controller"
+        "org.fireflyframework.callbacks.web.controller"
 })
 public class CallbacksTestConfiguration {
 }

@@ -36,10 +36,10 @@ import org.springframework.data.r2dbc.repository.config.EnableR2dbcRepositories;
  */
 @SpringBootApplication
 @ComponentScan(basePackages = {
-        "com.firefly.common.callbacks",
-        "com.firefly.common.eda"
+        "org.fireflyframework.callbacks",
+        "org.fireflyframework.eda"
 })
-@EnableR2dbcRepositories(basePackages = "com.firefly.common.callbacks.models.repository")
+@EnableR2dbcRepositories(basePackages = "org.fireflyframework.callbacks.models.repository")
 public class CallbackManagementApplication {
 
     public static void main(String[] args) {
