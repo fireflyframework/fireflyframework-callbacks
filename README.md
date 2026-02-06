@@ -1,4 +1,4 @@
-# Firefly Callback Management Platform
+# Firefly Framework Callbacks Library
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![Java](https://img.shields.io/badge/Java-21-orange.svg)](https://openjdk.org/projects/jdk/21/)
@@ -24,7 +24,7 @@
 
 ## 🎯 Overview
 
-The **Firefly Callback Management Platform** is a reactive, event-driven microservice that enables Firefly to send real-time webhooks to external systems. It provides a complete solution for:
+The **Firefly Framework Callbacks Library** is a reactive, event-driven microservice that enables Firefly to send real-time webhooks to external systems. It provides a complete solution for:
 
 - **Dynamic Event Subscription**: Subscribe to Kafka topics at runtime without redeployment
 - **Intelligent Event Routing**: Route events to multiple HTTP endpoints based on event types
@@ -156,8 +156,8 @@ For detailed architecture documentation, see [docs/ARCHITECTURE.md](docs/ARCHITE
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/firefly-oss/common-platform-callbacks-mgmt.git
-cd common-platform-callbacks-mgmt
+git clone https://github.com/firefly-oss/fireflyframework-callbacks.git
+cd fireflyframework-callbacks
 ```
 
 ### 2. Start Dependencies (Docker)
@@ -187,7 +187,7 @@ mvn clean install
 ### 5. Run the Application
 
 ```bash
-cd common-platform-callbacks-mgmt-web
+cd fireflyframework-callbacks-web
 mvn spring-boot:run
 ```
 
@@ -255,27 +255,27 @@ For a complete quickstart guide, see [docs/QUICKSTART_GUIDE.md](docs/QUICKSTART_
 ## 📁 Project Structure
 
 ```
-common-platform-callbacks-mgmt/
-├── common-platform-callbacks-mgmt-interfaces/    # DTOs, Enums, API contracts
+fireflyframework-callbacks/
+├── fireflyframework-callbacks-interfaces/    # DTOs, Enums, API contracts
 │   └── src/main/java/.../interfaces/
 │       ├── dto/                                  # Data Transfer Objects
 │       └── enums/                                # Enumerations
 │
-├── common-platform-callbacks-mgmt-models/        # Entities, Repositories
+├── fireflyframework-callbacks-models/        # Entities, Repositories
 │   └── src/main/
 │       ├── java/.../models/
 │       │   ├── entity/                           # R2DBC entities
 │       │   └── repository/                       # R2DBC repositories
 │       └── resources/db/migration/               # Flyway migrations
 │
-├── common-platform-callbacks-mgmt-core/          # Business logic
+├── fireflyframework-callbacks-core/          # Business logic
 │   └── src/main/java/.../core/
 │       ├── filters/                              # FilterRequest, FilterUtils
 │       ├── listener/                             # Dynamic event listeners
 │       ├── mapper/                               # MapStruct mappers
 │       └── service/                              # Service interfaces & implementations
 │
-├── common-platform-callbacks-mgmt-web/           # REST API, Configuration
+├── fireflyframework-callbacks-web/           # REST API, Configuration
 │   └── src/main/
 │       ├── java/.../web/
 │       │   ├── config/                           # Spring configuration
@@ -283,7 +283,7 @@ common-platform-callbacks-mgmt/
 │       └── resources/
 │           └── application.yml                   # Application configuration
 │
-└── common-platform-callbacks-mgmt-sdk/           # Client SDK (future)
+└── fireflyframework-callbacks-sdk/           # Client SDK (future)
 ```
 
 ## 🔌 API Endpoints
@@ -377,18 +377,18 @@ mvn clean install
 mvn clean install -DskipTests
 
 # Build specific module
-mvn clean install -pl common-platform-callbacks-mgmt-web
+mvn clean install -pl fireflyframework-callbacks-web
 ```
 
 ### Run
 
 ```bash
 # Run with Maven
-cd common-platform-callbacks-mgmt-web
+cd fireflyframework-callbacks-web
 mvn spring-boot:run
 
 # Run with Java
-java -jar common-platform-callbacks-mgmt-web/target/common-platform-callbacks-mgmt-web-1.0.0-SNAPSHOT.jar
+java -jar fireflyframework-callbacks-web/target/fireflyframework-callbacks-web-1.0.0-SNAPSHOT.jar
 
 # Run with Docker
 docker build -t firefly/callbacks-mgmt:latest .

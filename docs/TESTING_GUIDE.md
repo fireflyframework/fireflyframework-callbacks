@@ -1,6 +1,6 @@
 # Testing Guide
 
-> **Comprehensive testing strategies and examples for the Firefly Callback Management Platform**
+> **Comprehensive testing strategies and examples for the Firefly Framework Callbacks Library**
 
 ## Table of Contents
 
@@ -16,7 +16,7 @@
 
 ## Overview
 
-The Firefly Callback Management Platform uses a comprehensive testing strategy with three levels of tests:
+The Firefly Framework Callbacks Library uses a comprehensive testing strategy with three levels of tests:
 
 1. **Unit Tests**: Test individual components in isolation
 2. **Integration Tests**: Test component interactions with real dependencies (using Testcontainers)
@@ -107,10 +107,10 @@ mvn test -Dtest=CallbackConfigurationServiceTest#testFilterConfigurations
 
 ```bash
 # Core module tests
-mvn test -pl common-platform-callbacks-mgmt-core
+mvn test -pl fireflyframework-callbacks-core
 
 # Web module tests (includes integration tests)
-mvn test -pl common-platform-callbacks-mgmt-web
+mvn test -pl fireflyframework-callbacks-web
 ```
 
 ### Run Only Integration Tests
@@ -134,7 +134,7 @@ mvn clean install -DskipTests
 ### Run Tests with Debug Logging
 
 ```bash
-mvn test -Dlogging.level.com.firefly.common.callbacks=DEBUG
+mvn test -Dlogging.level.org.fireflyframework.callbacks=DEBUG
 ```
 
 ## Unit Testing

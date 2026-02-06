@@ -1,6 +1,6 @@
 # Quickstart Guide
 
-> **Get up and running with the Firefly Callback Management Platform in 10 minutes**
+> **Get up and running with the Firefly Framework Callbacks Library in 10 minutes**
 
 ## Table of Contents
 
@@ -69,8 +69,8 @@ This is the fastest way to get started with all dependencies.
 #### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/firefly-oss/common-platform-callbacks-mgmt.git
-cd common-platform-callbacks-mgmt
+git clone https://github.com/firefly-oss/fireflyframework-callbacks.git
+cd fireflyframework-callbacks
 ```
 
 #### 2. Start Dependencies
@@ -100,7 +100,7 @@ mvn clean install
 #### 4. Run the Application
 
 ```bash
-cd common-platform-callbacks-mgmt-web
+cd fireflyframework-callbacks-web
 mvn spring-boot:run
 ```
 
@@ -158,15 +158,15 @@ bin/kafka-server-start.sh config/server.properties &
 #### 3. Clone and Build
 
 ```bash
-git clone https://github.com/firefly-oss/common-platform-callbacks-mgmt.git
-cd common-platform-callbacks-mgmt
+git clone https://github.com/firefly-oss/fireflyframework-callbacks.git
+cd fireflyframework-callbacks
 mvn clean install
 ```
 
 #### 4. Run the Application
 
 ```bash
-cd common-platform-callbacks-mgmt-web
+cd fireflyframework-callbacks-web
 mvn spring-boot:run
 ```
 
@@ -208,7 +208,7 @@ The application will automatically:
 ### Start the Application
 
 ```bash
-cd common-platform-callbacks-mgmt-web
+cd fireflyframework-callbacks-web
 mvn spring-boot:run
 ```
 
@@ -527,7 +527,7 @@ Publish an event and watch the retries in the logs:
 
 ```bash
 # Watch application logs
-tail -f common-platform-callbacks-mgmt-web/target/spring-boot.log
+tail -f fireflyframework-callbacks-web/target/spring-boot.log
 ```
 
 ### Test Circuit Breaker
@@ -815,8 +815,8 @@ curl http://localhost:8080/actuator/metrics/http.client.requests
 **Need Help?**
 - 📖 [Architecture Documentation](ARCHITECTURE.md)
 - 🧪 [Testing Guide](TESTING_GUIDE.md)
-- 🐛 [Report Issues](https://github.com/firefly-oss/common-platform-callbacks-mgmt/issues)
-- 💬 [Discussions](https://github.com/firefly-oss/common-platform-callbacks-mgmt/discussions)
+- 🐛 [Report Issues](https://github.com/firefly-oss/fireflyframework-callbacks/issues)
+- 💬 [Discussions](https://github.com/firefly-oss/fireflyframework-callbacks/discussions)
 
 ---
 

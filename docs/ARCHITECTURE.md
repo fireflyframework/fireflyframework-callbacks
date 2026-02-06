@@ -1,6 +1,6 @@
 # Architecture Deep Dive
 
-> **Comprehensive architectural documentation for the Firefly Callback Management Platform**
+> **Comprehensive architectural documentation for the Firefly Framework Callbacks Library**
 
 ## Table of Contents
 
@@ -17,7 +17,7 @@
 
 ## Overview
 
-The Firefly Callback Management Platform is a **reactive, event-driven microservice** that bridges Firefly's internal event bus (Kafka) with external HTTP webhooks. It provides a complete solution for:
+The Firefly Framework Callbacks Library is a **reactive, event-driven microservice** that bridges Firefly's internal event bus (Kafka) with external HTTP webhooks. It provides a complete solution for:
 
 1. **Dynamic Event Subscription**: Subscribe to Kafka topics at runtime via REST API
 2. **Intelligent Event Routing**: Route events to multiple HTTP endpoints based on patterns
@@ -130,7 +130,7 @@ The Firefly Callback Management Platform is a **reactive, event-driven microserv
 The platform follows a **multi-module Maven architecture** for clear separation of concerns:
 
 ```
-common-platform-callbacks-mgmt/
+fireflyframework-callbacks/
 │
 ├── interfaces/          # API Contracts (DTOs, Enums)
 │   ├── dto/            # Data Transfer Objects
@@ -214,7 +214,7 @@ common-platform-callbacks-mgmt/
 
 **Purpose**: Dynamically creates Kafka listeners based on database configuration without requiring application restart.
 
-**Location**: `com.firefly.common.callbacks.core.listener.DynamicListenerFactory`
+**Location**: `org.fireflyframework.callbacks.core.listener.DynamicListenerFactory`
 
 **How It Works**:
 
@@ -263,7 +263,7 @@ public class DynamicListenerFactory {
 
 **Purpose**: Routes incoming events to matching callback configurations.
 
-**Location**: `com.firefly.common.callbacks.core.service.impl.CallbackRouterImpl`
+**Location**: `org.fireflyframework.callbacks.core.service.impl.CallbackRouterImpl`
 
 **Routing Logic**:
 
@@ -300,7 +300,7 @@ public Mono<Integer> routeEvent(
 
 **Purpose**: Executes HTTP callbacks with retry logic, circuit breakers, and HMAC signing.
 
-**Location**: `com.firefly.common.callbacks.core.service.impl.CallbackDispatcherImpl`
+**Location**: `org.fireflyframework.callbacks.core.service.impl.CallbackDispatcherImpl`
 
 **Execution Flow**:
 
@@ -353,7 +353,7 @@ RetryBackoffSpec retrySpec = Retry.backoff(
 
 **Purpose**: Validates callback URLs against a whitelist of authorized domains.
 
-**Location**: `com.firefly.common.callbacks.core.service.impl.DomainAuthorizationServiceImpl`
+**Location**: `org.fireflyframework.callbacks.core.service.impl.DomainAuthorizationServiceImpl`
 
 **Authorization Flow**:
 
@@ -382,7 +382,7 @@ public Mono<Boolean> isAuthorized(String url) {
 
 **Purpose**: Provides unified filtering, pagination, and sorting across all entities.
 
-**Location**: `com.firefly.common.callbacks.core.filters.*`
+**Location**: `org.fireflyframework.callbacks.core.filters.*`
 
 **FilterRequest Structure**:
 
@@ -1326,7 +1326,7 @@ Flux<Event> events = kafkaConsumer.consume()
 ```yaml
 spring:
   application:
-    name: common-platform-callbacks-mgmt
+    name: fireflyframework-callbacks
 
   # Database Configuration
   r2dbc:
@@ -1420,8 +1420,8 @@ eda:
 # Logging
 logging:
   level:
-    com.firefly.common.callbacks: ${LOG_LEVEL:INFO}
-    com.firefly.common.eda: ${LOG_LEVEL_EDA:INFO}
+    org.fireflyframework.callbacks: ${LOG_LEVEL:INFO}
+    org.fireflyframework.common.eda: ${LOG_LEVEL_EDA:INFO}
     org.springframework.data.r2dbc: ${LOG_LEVEL_R2DBC:WARN}
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
