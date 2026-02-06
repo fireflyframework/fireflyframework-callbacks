@@ -332,7 +332,7 @@ class CallbackManagementEndToEndTest {
                 .uri("/api/v1/callback-executions/by-configuration/" + callbackConfigId)
                 .exchange()
                 .expectStatus().isOk()
-                .expectBodyList(com.firefly.common.callbacks.interfaces.dto.CallbackExecutionDTO.class)
+                .expectBodyList(org.fireflyframework.callbacks.interfaces.dto.CallbackExecutionDTO.class)
                 .consumeWith(response -> {
                     var executions = response.getResponseBody();
                     assertThat(executions).isNotEmpty();
@@ -448,7 +448,7 @@ class CallbackManagementEndToEndTest {
                 .uri("/api/v1/callback-executions/by-configuration/" + callbackConfigId)
                 .exchange()
                 .expectStatus().isOk()
-                .expectBodyList(com.firefly.common.callbacks.interfaces.dto.CallbackExecutionDTO.class)
+                .expectBodyList(org.fireflyframework.callbacks.interfaces.dto.CallbackExecutionDTO.class)
                 .consumeWith(response -> {
                     var executions = response.getResponseBody();
                     assertThat(executions).isNotEmpty();
@@ -463,7 +463,7 @@ class CallbackManagementEndToEndTest {
                 .uri("/api/v1/callback-executions/by-configuration/" + secondCallbackConfigId)
                 .exchange()
                 .expectStatus().isOk()
-                .expectBodyList(com.firefly.common.callbacks.interfaces.dto.CallbackExecutionDTO.class)
+                .expectBodyList(org.fireflyframework.callbacks.interfaces.dto.CallbackExecutionDTO.class)
                 .consumeWith(response -> {
                     var executions = response.getResponseBody();
                     assertThat(executions).isNotEmpty();
@@ -528,7 +528,7 @@ class CallbackManagementEndToEndTest {
                 .uri("/api/v1/callback-executions/by-configuration/" + unauthorizedConfigId)
                 .exchange()
                 .expectStatus().isOk()
-                .expectBodyList(com.firefly.common.callbacks.interfaces.dto.CallbackExecutionDTO.class)
+                .expectBodyList(org.fireflyframework.callbacks.interfaces.dto.CallbackExecutionDTO.class)
                 .consumeWith(response -> {
                     var executions = response.getResponseBody();
                     if (executions != null && !executions.isEmpty()) {

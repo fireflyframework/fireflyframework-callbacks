@@ -388,7 +388,7 @@ public class CallbackDispatcherImpl implements CallbackDispatcher {
     /**
      * Maps HTTP method enum to Spring HttpMethod.
      */
-    private org.springframework.http.HttpMethod mapHttpMethod(com.firefly.common.callbacks.interfaces.enums.HttpMethod method) {
+    private org.springframework.http.HttpMethod mapHttpMethod(org.fireflyframework.callbacks.interfaces.enums.HttpMethod method) {
         return switch (method) {
             case POST -> org.springframework.http.HttpMethod.POST;
             case PUT -> org.springframework.http.HttpMethod.PUT;
