@@ -59,7 +59,7 @@ class CallbackEndToEndIntegrationTest {
 
     @Container
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>(
-            DockerImageName.parse("postgres:15-alpine"))
+            DockerImageName.parse("postgres:16-alpine"))
             .withDatabaseName("callbacks_test")
             .withUsername("test")
             .withPassword("test");
