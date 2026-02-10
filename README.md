@@ -219,7 +219,7 @@ For a complete quickstart guide, see [docs/QUICKSTART_GUIDE.md](docs/QUICKSTART_
 ## 🛠️ Technology Stack
 
 ### Core Framework
-- **Spring Boot 3.5.9** - Application framework
+- **Spring Boot 3.5.10** - Application framework
 - **Spring WebFlux** - Reactive web framework
 - **Project Reactor** - Reactive programming library
 
