@@ -1,4 +1,6 @@
 # Firefly Framework Callbacks Library
+    
+[![CI](https://github.com/fireflyframework/fireflyframework-callbacks/actions/workflows/ci.yml/badge.svg)](https://github.com/fireflyframework/fireflyframework-callbacks/actions/workflows/ci.yml)
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![Java](https://img.shields.io/badge/Java-25-orange.svg)](https://openjdk.org/projects/jdk/21/)
@@ -437,4 +439,3 @@ limitations under the License.
 ---
 
 **Developed with ❤️ by the Firefly Team**
-
