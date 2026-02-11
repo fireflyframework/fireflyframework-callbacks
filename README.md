@@ -59,21 +59,21 @@ The callbacks library is a multi-module project. Include the modules you need:
 <dependency>
     <groupId>org.fireflyframework</groupId>
     <artifactId>fireflyframework-callbacks-core</artifactId>
-    <version>26.01.01</version>
+    <version>26.02.01</version>
 </dependency>
 
 <!-- DTOs and interfaces -->
 <dependency>
     <groupId>org.fireflyframework</groupId>
     <artifactId>fireflyframework-callbacks-interfaces</artifactId>
-    <version>26.01.01</version>
+    <version>26.02.01</version>
 </dependency>
 
 <!-- SDK for client integration -->
 <dependency>
     <groupId>org.fireflyframework</groupId>
     <artifactId>fireflyframework-callbacks-sdk</artifactId>
-    <version>26.01.01</version>
+    <version>26.02.01</version>
 </dependency>
 ```
 
