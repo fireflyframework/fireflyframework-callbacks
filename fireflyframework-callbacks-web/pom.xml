@@ -24,13 +24,6 @@
         <dependency>
             <groupId>org.fireflyframework</groupId>
             <artifactId>fireflyframework-callbacks-core</artifactId>
-            <exclusions>
-                <!-- Exclude Brave to use only OpenTelemetry for tracing -->
-                <exclusion>
-                    <groupId>io.micrometer</groupId>
-                    <artifactId>micrometer-tracing-bridge-brave</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
 
         <!-- Common Libraries -->
@@ -38,13 +31,6 @@
             <groupId>org.fireflyframework</groupId>
             <artifactId>fireflyframework-web</artifactId>
             <version>${project.version}</version>
-            <exclusions>
-                <!-- Exclude Brave to use only OpenTelemetry for tracing -->
-                <exclusion>
-                    <groupId>io.micrometer</groupId>
-                    <artifactId>micrometer-tracing-bridge-brave</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
 
         <!-- Spring Boot Starter -->
@@ -76,14 +62,11 @@
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
 
-        <!-- OpenTelemetry Tracing -->
+        <!-- Observability (metrics, tracing, health, logging) -->
         <dependency>
-            <groupId>io.micrometer</groupId>
-            <artifactId>micrometer-tracing-bridge-otel</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.opentelemetry</groupId>
-            <artifactId>opentelemetry-exporter-otlp</artifactId>
+            <groupId>org.fireflyframework</groupId>
+            <artifactId>fireflyframework-observability</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
         <!-- Lombok -->
