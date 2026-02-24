@@ -19,7 +19,6 @@ package org.fireflyframework.callbacks.core.service;
 import org.fireflyframework.callbacks.core.filters.FilterRequest;
 import org.fireflyframework.callbacks.core.filters.PaginationResponse;
 import org.fireflyframework.callbacks.interfaces.dto.AuthorizedDomainDTO;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.UUID;
