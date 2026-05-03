@@ -556,5 +556,5 @@ See the `docs/CALLBACK_EXAMPLES.md` file for complete examples of:
 
 ---
 
-**© 2025 Firefly Software Solutions Inc. All rights reserved.**
+**© 2025 Firefly Software Foundation. All rights reserved.**
 
