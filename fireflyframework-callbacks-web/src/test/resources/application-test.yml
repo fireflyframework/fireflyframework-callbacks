@@ -68,3 +68,13 @@ logging:
     org.fireflyframework.common.eda: DEBUG
     org.springframework.data.r2dbc: DEBUG
     org.testcontainers: INFO
+
+# Same observability test workaround as webhooks (see CacheObservabilityAutoConfiguration fix in 26.05.07).
+management:
+  endpoint:
+    health:
+      validate-group-membership: false
+firefly:
+  observability:
+    health:
+      enabled: false
