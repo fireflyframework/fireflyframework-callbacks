@@ -468,5 +468,5 @@ The system is production-ready and supports all enterprise use cases.
 
 ---
 
-**© 2025 Firefly Software Solutions Inc. All rights reserved.**
+**© 2025 Firefly Software Foundation. All rights reserved.**
 

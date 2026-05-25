@@ -617,5 +617,5 @@ def test_hmac_signature():
 
 ---
 
-**© 2025 Firefly Software Solutions Inc. All rights reserved.**
+**© 2025 Firefly Software Foundation. All rights reserved.**
 
