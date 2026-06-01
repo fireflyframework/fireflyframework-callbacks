@@ -65,9 +65,9 @@ class CallbackDispatcherImplTest {
 
     @BeforeAll
     static void setupClass() {
-        wireMockServer = new WireMockServer(8090);
+        wireMockServer = new WireMockServer(0); // dynamic port to avoid clashes with other local servers
         wireMockServer.start();
-        WireMock.configureFor("localhost", 8090);
+        WireMock.configureFor("localhost", wireMockServer.port());
     }
 
     @AfterAll
@@ -98,7 +98,7 @@ class CallbackDispatcherImplTest {
     @DisplayName("Should successfully dispatch callback with HMAC signature")
     void testSuccessfulCallbackWithHMAC() {
         // Setup
-        String url = "http://localhost:8090/webhook";
+        String url = "http://localhost:" + wireMockServer.port() + "/webhook";
         CallbackConfigurationDTO config = CallbackConfigurationDTO.builder()
                 .id(UUID.randomUUID())
                 .url(url)
@@ -179,7 +179,7 @@ class CallbackDispatcherImplTest {
     @DisplayName("Should retry failed callback")
     void testCallbackRetry() {
         // Setup
-        String url = "http://localhost:8090/webhook";
+        String url = "http://localhost:" + wireMockServer.port() + "/webhook";
         CallbackConfigurationDTO config = CallbackConfigurationDTO.builder()
                 .id(UUID.randomUUID())
                 .url(url)
@@ -230,7 +230,7 @@ class CallbackDispatcherImplTest {
     @DisplayName("Should include custom headers in callback")
     void testCustomHeaders() {
         // Setup
-        String url = "http://localhost:8090/webhook";
+        String url = "http://localhost:" + wireMockServer.port() + "/webhook";
         CallbackConfigurationDTO config = CallbackConfigurationDTO.builder()
                 .id(UUID.randomUUID())
                 .url(url)
